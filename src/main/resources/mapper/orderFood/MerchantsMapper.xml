@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="MerchantsMapper">
+    <resultMap id="BaseResultMap" type="com.mobai.dto.MerchantsDTO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="merchants_name" property="merchantsName" jdbcType="VARCHAR"/>
+        <result column="merchants_content" property="merchantsContent" jdbcType="VARCHAR"/>
+        <result column="merchants_address" property="merchantsAddress" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="merchants" property="merchants" jdbcType="VARCHAR"/>
+        <result column="order_limit" property="orderLimit" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="order_number" property="orderNumber" jdbcType="INTEGER"/>
+        <result column="staff_code" property="staffCode" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="start_time" property="startTime" jdbcType="TIME"/>
+        <result column="end_time" property="endTime" jdbcType="TIME"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, merchants_name, merchants_content, merchants_address, create_time, state, merchants,
+    order_limit, score, order_number, staff_code, phone,start_time,end_time
+  </sql>
+    <select id="selectAllId" resultType="java.lang.Integer">
+        select id
+        from merchants where state != '3' and state != '4'
+    </select>
+    <update id="updatePassword" parameterType="com.mobai.dto.MerchantsDTO">
+    update merchants
+    set password = #{password,jdbcType=VARCHAR}
+    where phone = #{phone,jdbcType=VARCHAR} limit 1
+  </update>
+    <select id="login" resultMap="BaseResultMap" parameterType="com.mobai.dto.MerchantsDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from merchants
+        where password = #{password} and phone = #{phone}
+    </select>
+    <select id="getAllMerchants" resultMap="BaseResultMap" parameterType="com.mobai.dto.MerchantsDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from merchants
+        where 1=1
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="state != null and state != ''">
+            and state = #{state}
+        </if>
+        <if test="phone != null and phone != ''">
+            and phone like concat(#{phone},'%')
+        </if>
+        <if test="merchantsName != null and merchantsName != ''">
+            and merchants_name like concat('%',#{merchantsName},'%')
+        </if>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from merchants
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertMerchants" parameterType="com.mobai.dto.MerchantsDTO">
+        insert into merchants
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="merchantsName != null">
+                merchants_name,
+            </if>
+            <if test="merchantsContent != null">
+                merchants_content,
+            </if>
+            <if test="merchantsAddress != null">
+                merchants_address,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="merchants != null">
+                merchants,
+            </if>
+            <if test="orderLimit != null">
+                order_limit,
+            </if>
+            <if test="score != null">
+                score,
+            </if>
+            <if test="orderNumber != null">
+                order_number,
+            </if>
+            <if test="staffCode != null">
+                staff_code,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="merchantsName != null">
+                #{merchantsName,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantsContent != null">
+                #{merchantsContent,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantsAddress != null">
+                #{merchantsAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=VARCHAR},
+            </if>
+            <if test="merchants != null">
+                #{merchants,jdbcType=VARCHAR},
+            </if>
+            <if test="orderLimit != null">
+                #{orderLimit,jdbcType=INTEGER},
+            </if>
+            <if test="score != null">
+                #{score,jdbcType=DOUBLE},
+            </if>
+            <if test="orderNumber != null">
+                #{orderNumber,jdbcType=INTEGER},
+            </if>
+            <if test="staffCode != null">
+                #{staffCode,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateMerchants" parameterType="com.mobai.dto.MerchantsDTO">
+        update merchants
+        <set>
+            <if test="merchantsName != null">
+                merchants_name = #{merchantsName,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantsContent != null">
+                merchants_content = #{merchantsContent,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantsAddress != null">
+                merchants_address = #{merchantsAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=VARCHAR},
+            </if>
+            <if test="merchants != null">
+                merchants = #{merchants,jdbcType=VARCHAR},
+            </if>
+            <if test="orderLimit != null">
+                order_limit = #{orderLimit,jdbcType=INTEGER},
+            </if>
+            <if test="score != null">
+                score = #{score,jdbcType=DOUBLE},
+            </if>
+            <if test="orderNumber != null">
+                order_number = #{orderNumber,jdbcType=INTEGER},
+            </if>
+            <if test="staffCode != null">
+                staff_code = #{staffCode,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

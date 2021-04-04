@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="OrderParentMapper">
+    <resultMap id="BaseResultMap" type="com.mobai.dto.OrderParentDTO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="merchants_id" property="merchantsId" jdbcType="INTEGER"/>
+        <result column="staff_id" property="staffId" jdbcType="INTEGER"/>
+        <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="score_to_merchants" property="scoreToMerchants" jdbcType="VARCHAR"/>
+        <result column="score_to_staff" property="scoreToStaff" jdbcType="VARCHAR"/>
+        <result column="sum_price" property="sumPrice" jdbcType="DECIMAL"/>
+        <result column="order_time" property="orderTime" jdbcType="TIMESTAMP"/>
+        <result column="discount" property="discount" jdbcType="DECIMAL"/>
+        <result column="complaints" property="complaints" jdbcType="VARCHAR"/>
+        <result column="merchants_name" property="merchantsName" jdbcType="VARCHAR"/>
+        <result column="staff_name" property="staffName" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    t1.id, t1.merchants_id, t1.staff_id, t1.order_code, t1.create_time, t1.state, t1.score_to_merchants, t1.score_to_staff,
+    t1.sum_price, t1.order_time, t1.discount, t1.complaints,t3.merchants_name,t2.staff_name
+    </sql>
+    <sql id="Child_Column_List">
+    t1.id, t1.parent_id, t1.goods_id, t1.`number`, t1.price,t2.goods_name,t2.goods_pic
+  </sql>
+    <resultMap id="ChildResultMap" type="com.mobai.dto.OrderChildDTO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="parent_id" property="parentId" jdbcType="INTEGER"/>
+        <result column="goods_id" property="goodsId" jdbcType="INTEGER"/>
+        <result column="number" property="number" jdbcType="INTEGER"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
+        <result column="goods_pic" property="goodsPic" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="getOrderChildren" resultMap="ChildResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Child_Column_List"/>
+        from order_child t1,goods t2
+        where t1.parent_id = #{id,jdbcType=INTEGER} and t1.goods_id = t2.id
+    </select>
+
+    <resultMap id="OrderResultMap" type="com.mobai.dto.OrderParentDTO" extends="BaseResultMap">
+        <collection property="orderChildDTOList" column="id" ofType="com.mobai.dto.OrderChildDTO"
+                    select="getOrderChildren"/>
+    </resultMap>
+
+    <select id="getOrderByParam" resultMap="OrderResultMap" parameterType="java.util.HashMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_parent t1,staff t2,merchants t3
+        WHERE t1.merchants_id = t3.id and t1.staff_id = t2.id
+        <if test="id != null">
+            and t1.id = #{id,jdbcType=INTEGER}
+        </if>
+        <if test="merchantsId != null">
+            and t1.merchants_id = #{merchantsId,jdbcType=INTEGER}
+        </if>
+        <if test="staffId != null">
+            and t1.staff_id = #{staffId,jdbcType=INTEGER}
+        </if>
+        <if test="orderCode != null and orderCode != ''">
+            and t1.order_code like concat('%',#{orderCode,jdbcType=VARCHAR})
+        </if>
+        <if test="state != null and state != ''">
+            and t1.state = #{state}
+        </if>
+        <if test="staffPhone != null and staffPhone != ''">
+            and t2.phone = #{staffPhone}
+        </if>
+        <if test="phone != null and phone != ''">
+            and t3.phone = #{phone}
+        </if>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from order_parent
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertOrderChildren" parameterType="java.util.List">
+        insert into order_child(parent_id,goods_id,`number`,price)
+        values
+        <foreach collection="orderChildList" separator="," item="orderChild">
+            (#{orderChild.parentId},#{orderChild.goodsId},#{orderChild.number},#{orderChild.price})
+        </foreach>
+    </insert>
+    <insert id="insertOrderParent" parameterType="com.mobai.dto.OrderParentDTO" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into order_parent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="merchantsId != null">
+                merchants_id,
+            </if>
+            <if test="staffId != null">
+                staff_id,
+            </if>
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="scoreToMerchants != null">
+                score_to_merchants,
+            </if>
+            <if test="scoreToStaff != null">
+                score_to_staff,
+            </if>
+            <if test="sumPrice != null">
+                sum_price,
+            </if>
+            <if test="orderTime != null">
+                order_time,
+            </if>
+            <if test="discount != null">
+                discount,
+            </if>
+            <if test="complaints != null">
+                complaints,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="merchantsId != null">
+                #{merchantsId,jdbcType=INTEGER},
+            </if>
+            <if test="staffId != null">
+                #{staffId,jdbcType=INTEGER},
+            </if>
+            <if test="orderCode != null">
+                #{orderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=VARCHAR},
+            </if>
+            <if test="scoreToMerchants != null">
+                #{scoreToMerchants,jdbcType=VARCHAR},
+            </if>
+            <if test="scoreToStaff != null">
+                #{scoreToStaff,jdbcType=VARCHAR},
+            </if>
+            <if test="sumPrice != null">
+                #{sumPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="orderTime != null">
+                #{orderTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="discount != null">
+                #{discount,jdbcType=DECIMAL},
+            </if>
+            <if test="complaints != null">
+                #{complaints,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateInfo" parameterType="java.util.HashMap">
+        update order_parent
+        <set>
+            <if test="state != null">
+                state = #{state,jdbcType=VARCHAR},
+            </if>
+            <if test="scoreToMerchants != null">
+                score_to_merchants = #{scoreToMerchants,jdbcType=VARCHAR},
+            </if>
+            <if test="scoreToStaff != null">
+                score_to_staff = #{scoreToStaff,jdbcType=VARCHAR},
+            </if>
+            <if test="complaints != null">
+                complaints = #{complaints,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="getSumGroupByMonth" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        SELECT SUM(sum_price) as price,MONTH(create_time) as `month` from order_parent
+        WHERE  merchants_id = #{merchantsId}
+        and year(create_time) = #{year}
+        and state = '6'
+        GROUP BY MONTH(create_time)
+    </select>
+
+    <select id="countLastMonth" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+        SELECT COUNT(0) from order_parent
+        WHERE  merchants_id = #{merchantsId}
+        and state = '6'
+        AND MONTH(create_time) = MONTH(NOW()) - 1 GROUP BY MONTH(create_time)
+    </select>
+
+    <select id="avgScore" parameterType="java.util.HashMap" resultType="java.lang.Double">
+        SELECT avg(score_to_staff) from order_parent
+        WHERE  merchants_id = #{merchantsId}
+        and state = '6'
+        and score_to_staff is not null
+    </select>
+
+    <select id="avgScore2" parameterType="java.util.HashMap" resultType="java.lang.Double">
+        SELECT avg(score_to_staff) from order_parent
+        WHERE  staff_id = #{staffId}
+        and state = '6'
+        and score_to_staff is not null
+    </select>
+
+    <select id="sumPriceByGoodsId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        SELECT sum(t2.price) as price,t3.goods_name as goodsName from order_parent t1,order_child t2,goods t3
+        where t1.id = t2.parent_id and t2.goods_id = t3.id
+        AND MONTH(t1.create_time) = #{month}
+        AND t1.merchants_id = #{merchantsId}
+        and t1.state = '6'
+        GROUP BY t2.goods_id
+        order by sum(t2.price) desc
+    </select>
+</mapper>
